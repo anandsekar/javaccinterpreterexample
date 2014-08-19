@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!-- ====================================================================== 
+     Jan 10, 2006 9:16:55 PM                                                        
+
+     java cc example    
+     A simple calculator
+                   
+     Anand                                                                
+     ====================================================================== -->
+<project name="java cc example" default="javacc">
+    <description>
+            A simple calculator
+    </description>
+
+    <!-- ================================= 
+          target: javacc              
+         ================================= -->
+    <target name="javacc" depends="init" description="--> A simple calculator">
+        <jjtree javacchome="./javacc-4.0" target="src/Expr.jjt" outputdirectory="target"/>
+    	<javacc javacchome="./javacc-4.0" target="target/Expr.jj" outputdirectory="target" debugparser="false"/>
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="init">
+    	<mkdir dir="target"/>
+    </target>
+	
+	
+    <!-- ================================= 
+          target: clean              
+         ================================= -->
+    <target name="clean" depends="" description="--> clean">
+        <delete dir="target"></delete>
+    </target>
+
+
+
+</project>
+

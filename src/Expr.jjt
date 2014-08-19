@@ -1,0 +1,105 @@
+options {
+   MULTI=true;
+   VISITOR=true;
+   NODE_DEFAULT_VOID=true;
+   NODE_EXTENDS="BaseNode";
+}
+
+PARSER_BEGIN(ExpressionParser)
+
+public class ExpressionParser {
+
+  public static void main(String args[]) throws Exception {
+    ExpressionParser parser = new ExpressionParser(new java.io.FileReader(args[0]));
+    //ExpressionParser parser = new ExpressionParser(System.in);
+    ASTstart expr=parser.start();
+    ExpressionVisitor v=new ExpressionVisitor();
+    System.out.println(expr.jjtAccept(v,null));
+  }
+}
+
+PARSER_END(ExpressionParser)
+
+SKIP :
+{
+	" " 
+	|"\t"
+	|"\n"
+	|"\r"
+}
+
+TOKEN:
+{
+		<NUMBER: (["0"-"9"])+ >
+	|	<VARIABLE: (["a"-"z"])+>	
+	|	<DIVIDE: "%">
+	|	<MULTIPLY: "*">
+	|	<PLUS: "+">
+	|	<MINUS: "-">
+}
+
+ASTstart start() #start:{}
+{
+  (statement())+
+  { return jjtThis; }
+}
+
+void statement() #Statement:
+{}
+{
+	identifier()"="expression()";"
+}
+
+void identifier() :
+{}
+{
+	<VARIABLE>
+	{
+		jjtThis.data.put("name",token.image);
+	}#Variable
+}
+
+void expression():
+{}
+{
+	additiveExpression()
+}
+
+void additiveExpression() :
+{}
+{
+	multiplicativeExpression()
+	(<PLUS> multiplicativeExpression()#AddExpr(2)
+	 | <MINUS> multiplicativeExpression()#SubractExpr(2)
+	)*
+}
+
+void multiplicativeExpression() :
+{}
+{
+	unaryExpression()
+	(
+	 <MULTIPLY> unaryExpression()#MultiplyExpr(2)
+	 |<DIVIDE> unaryExpression()#DivideExpr(2)
+	)*
+}
+void unaryExpression() :
+{}
+{
+	<MINUS> numberExpression()#NegateExpr(1)|
+	numberExpression()
+}
+
+void numberExpression() :
+{
+}
+{
+	<NUMBER>
+	{ 
+		jjtThis.data.put("value",new Integer(Integer.parseInt(token.image)));
+	}#Number
+	| <VARIABLE>
+	{
+		jjtThis.data.put("name",token.image);
+	}#VariableValue
+}
